@@ -1,0 +1,18 @@
+//
+// Copyright Alexander Linne 2017 - present.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE.txt
+//     or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+
+#pragma once
+
+#include "repa/v1/functional/action/compute.hpp"
+
+#include "repa/v1/functional/view/backpermute.hpp"
+#include "repa/v1/functional/view/common.hpp"
+#include "repa/v1/functional/view/fold.hpp"
+#include "repa/v1/functional/view/id.hpp"
+#include "repa/v1/functional/view/transform.hpp"
+#include "repa/v1/functional/view/traverse.hpp"
+#include "repa/v1/functional/view/zip.hpp"
