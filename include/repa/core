@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "repa/v1/core/array.hpp"
 #include "repa/v1/core/array_concept.hpp"
 #include "repa/v1/core/index.hpp"
 #include "repa/v1/core/index_concept.hpp"
