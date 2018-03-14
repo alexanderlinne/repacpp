@@ -1,0 +1,14 @@
+//
+// Copyright Alexander Linne 2017 - present.
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE.txt
+//     or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+
+#pragma once
+
+#include "repa/v1/core/array.hpp"
+#include "repa/v1/core/array_concept.hpp"
+#include "repa/v1/core/index.hpp"
+#include "repa/v1/core/index_concept.hpp"
+#include "repa/v1/core/index_util.hpp"
