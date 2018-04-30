@@ -61,27 +61,60 @@ namespace repa {
 
     namespace detail {
 
-        template<size_t... I>
+        template<size_t... I1, size_t... I2, Index _Index>
         constexpr
-        auto add_dimension_impl(Index const& index,
-            element_type_t<decltype(index)> value,
-            std::index_sequence<I...>)
+        auto add_dimension_impl(_Index const& index,
+            element_type_t<_Index> value,
+            std::index_sequence<I1...>,
+            std::index_sequence<I2...>)
             -> Index
         {
-            return make_index(get<I>(index)..., value);
+            return make_index(get<I1>(index)..., value, get<I2>(index)...);
+        }
+
+        template<size_t... I1, size_t... I2>
+        constexpr
+        auto remove_dimension_impl(Index const& index,
+            std::index_sequence<I1...>,
+            std::index_sequence<I2...>)
+            -> Index
+        {
+            return make_index(get<I1>(index)..., get<I2>(index)...);
         }
 
     } // namespace detail
 
+    template<size_t Dim, Index _Index>
+    constexpr
+    auto add_dimension(_Index const& index, element_type_t<_Index> value)
+        -> Index
+    {
+        static_assert(Dim <= rank_v<_Index>);
+        return detail::add_dimension_impl(index, value,
+            std::make_index_sequence<Dim>(),
+            make_index_sequence<Dim, rank_v<_Index>>());
+    }
+
+    template<size_t Dim, Index _Index>
+    constexpr
+    auto remove_dimension(_Index const& index)
+        -> Index
+    {
+        static_assert(Dim < rank_v<_Index>);
+        return detail::remove_dimension_impl(index,
+            std::make_index_sequence<Dim>(),
+            make_index_sequence<Dim + 1, rank_v<_Index>>());
+    }
+
     // Increases the rank of index by one and initializes the new dimension
     // with the given value.
+    template<Index _Index>
     constexpr
-    auto add_dimension(Index const& index,
+    auto add_dimension(_Index const& index,
         element_type_t<decltype(index)> value)
         -> Index
     {
-        return detail::add_dimension_impl(index, value,
-            std::make_index_sequence<rank_v<decltype(index)>>());
+        return add_dimension<rank_v<_Index>>(index, value);
     }
 
 } // namespace repa
