@@ -19,28 +19,16 @@ namespace repa::view {
     auto add(_ArrayViews&&... arrays)
         -> Pipeable
     {
-        return make_pipeable(
-            [&](ArrayView&& array)
-                -> DelayedView
-            {
-                return std::forward<decltype(array)>(array)
-                    | zip([](auto&&... v) -> decltype(auto) { return (v + ...); },
-                        std::forward<_ArrayViews>(arrays)...);
-            });
+        return zip([](auto&&... v) -> decltype(auto) { return (v + ...); },
+            std::forward<_ArrayViews>(arrays)...);
     }
 
     template<ArrayView... _ArrayViews>
     auto subtract(_ArrayViews&&... arrays)
         -> Pipeable
     {
-        return make_pipeable(
-            [&](ArrayView&& array)
-                -> DelayedView
-            {
-                return std::forward<decltype(array)>(array)
-                    | zip([](auto&&... v) -> decltype(auto) { return (v - ...); },
-                        std::forward<_ArrayViews>(arrays)...);
-            });
+        return zip([](auto&&... v) -> decltype(auto) { return (v - ...); },
+            std::forward<_ArrayViews>(arrays)...);
     }
 
 
