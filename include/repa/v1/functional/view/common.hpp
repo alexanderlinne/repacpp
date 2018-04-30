@@ -47,17 +47,9 @@ namespace repa::view {
     auto transpose()
         -> Pipeable
     {
-        return make_pipeable(
-            [](ArrayView&& array)
-                -> DelayedView
-            {
-                static_assert(rank_v<decltype(array)> >= 2);
-                return std::forward<decltype(array)>(array)
-                    | backpermute(detail::transpose_swap(array.extent()),
-                        [](auto&& idx) {
-                            return detail::transpose_swap(idx);
-                        });
-            });
+        return backpermute(
+            [](auto&& extent) { return detail::transpose_swap(extent); },
+            [](auto&& index) { return detail::transpose_swap(index); });
     }
 
 } // namespace repa::view

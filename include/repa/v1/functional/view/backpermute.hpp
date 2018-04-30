@@ -14,15 +14,15 @@ namespace repa::view {
 
     namespace detail {
 
-        template<Index _Index, class _ExtentFn, ArrayView _ArrayView>
+        template<Index _Index, class _IndexFn, ArrayView _ArrayView>
         struct backpermute_view
         {
-            static_assert(Invocable<_ExtentFn, _Index const&>);
+            static_assert(Invocable<_IndexFn, _Index const&>);
 
             backpermute_view(_Index const& extent,
-                _ExtentFn&& extent_fn, _ArrayView array)
+                _IndexFn&& index_fn, _ArrayView array)
                 : _extent(extent),
-                extent_fn(std::forward<_ExtentFn>(extent_fn)),
+                index_fn(std::forward<_IndexFn>(index_fn)),
                 array(std::move(array))
             {};
 
@@ -35,29 +35,30 @@ namespace repa::view {
             auto operator[](Index const& idx) const
                 -> decltype(auto)
             {
-                return array[extent_fn(idx)];
+                return array[index_fn(idx)];
             }
 
         private:
             _Index _extent;
-            _ExtentFn extent_fn;
+            _IndexFn index_fn;
             _ArrayView array;
         };
 
     } // namespace detail
 
-    template<class _ExtentFn>
-    auto backpermute(Index const& extent, _ExtentFn&& extent_fn)
+    template<class _ExtentFn, class _IndexFn>
+    auto backpermute(_ExtentFn&& extent_fn, _IndexFn&& index_fn)
         -> Pipeable
     {
         return make_pipeable(
-            [&, extent_fn = std::forward<_ExtentFn>(extent_fn)]
+            [&, extent_fn = std::forward<_ExtentFn>(extent_fn),
+                index_fn = std::forward<_IndexFn>(index_fn)]
                 (ArrayView&& array)
                 -> DelayedView
             {
                 return detail::backpermute_view{
-                    extent,
-                    std::forward<decltype(extent_fn)>(extent_fn),
+                    extent_fn(array.extent()),
+                    std::forward<decltype(index_fn)>(index_fn),
                     std::forward<decltype(array)>(array)
                 };
             });
