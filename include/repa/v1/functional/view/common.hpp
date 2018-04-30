@@ -59,4 +59,15 @@ namespace repa::view {
             [](auto&& index) { return detail::transpose_swap(index); });
     }
 
+    template<size_t Dim>
+    auto extend(size_t size) {
+        return traverse(
+            [size = size](repa::Index&& extent) {
+                return add_dimension<Dim>(extent, size);
+            },
+            [](repa::ArrayView&& array, repa::Index&& index) {
+                return array[remove_dimension<Dim>(index)];
+            });
+    }
+
 } // namespace repa::view
