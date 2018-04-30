@@ -89,9 +89,8 @@ namespace repa {
     //
     template<class T>
     concept bool Index =
-        Copyable<remove_cvref_t<T>> &&
+        Regular<remove_cvref_t<T>> &&
         Tuple<T> &&
-        EqualityComparable<T> &&
         requires(const remove_reference_t<T>& a, size_t idx) {
             { a.template get<0>() } -> Integral;
             { a[idx] } -> Integral;

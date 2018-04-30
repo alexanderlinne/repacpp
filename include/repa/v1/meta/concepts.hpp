@@ -16,6 +16,28 @@
 namespace repa {
 
     //
+    // concept DefaultConstructible
+    //
+    template<class T>
+    concept bool DefaultConstructible = std::is_default_constructible_v<T>;
+
+    //
+    // concept Same
+    //
+    template<class T, class U>
+    concept bool Same = std::is_same_v<T, U>;
+
+    //
+    // concept Assignable
+    //
+    template<class T, class U>
+    concept bool Assignable =
+        std::is_lvalue_reference<T>::value &&
+        requires(T t, U&& u) {
+            { t = std::forward<U>(u) } -> Same<T>&&;
+        };
+
+    //
     // concept MoveConstructible
     //
     template<class T>
@@ -25,7 +47,7 @@ namespace repa {
     // concept MoveAssignable
     //
     template<class T>
-    concept bool MoveAssignable = std::is_move_assignable_v<T>;
+    concept bool MoveAssignable = Assignable<T&, T>;
 
     //
     // concept Movable
@@ -57,21 +79,61 @@ namespace repa {
     //
     template<class T>
     concept bool Copyable =
-        Movable<T>
-        && CopyConstructible<T>
-        && CopyAssignable<T>;
+        Movable<T> &&
+        CopyConstructible<T> &&
+        CopyAssignable<T>;
+
+    //
+    // concept SemiRegular
+    //
+    template<class T>
+    concept bool SemiRegular =
+        Copyable<T> &&
+        DefaultConstructible<T>;
+
+    //
+    // concept EqualityComparable
+    //
+    template<class T>
+    concept bool EqualityComparable =
+        requires(T a, T b) {
+            { a == b } -> bool;
+        };
+    template<class T, class U>
+    concept bool EqualityComparable2 =
+        requires(T a, U b) {
+            { a == b } -> bool;
+            { b == a } -> bool;
+        };
+
+    //
+    // concept LessThanComparable
+    //
+    template<class T>
+    concept bool LessThanComparable =
+        requires(T a, T b) {
+            { a < b } -> bool;
+        };
+    template<class T, class U>
+    concept bool LessThanComparable2 =
+        requires(T a, U b) {
+            { a < b } -> bool;
+        };
+
+    //
+    // concept Regular
+    //
+    template<class T>
+    concept bool Regular =
+        SemiRegular<T> &&
+        EqualityComparable<T>;
+
 
     //
     // concept BaseOf
     //
     template<class Base, class Derived>
     concept bool BaseOf = std::is_base_of_v<Base, Derived>;
-
-    //
-    // concept Same
-    //
-    template<class T, class U>
-    concept bool Same = std::is_same_v<T, U>;
 
     //
     // concept Boolean
@@ -110,35 +172,6 @@ namespace repa {
         requires (T a, U b) {
             a + b;
             b + a;
-        };
-
-    //
-    // concept EqualityComparable
-    //
-    template<class T>
-    concept bool EqualityComparable =
-        requires(T a, T b) {
-            { a == b } -> bool;
-        };
-    template<class T, class U>
-    concept bool EqualityComparable2 =
-        requires(T a, U b) {
-            { a == b } -> bool;
-            { b == a } -> bool;
-        };
-
-    //
-    // concept LessThanComparable
-    //
-    template<class T>
-    concept bool LessThanComparable =
-        requires(T a, T b) {
-            { a < b } -> bool;
-        };
-    template<class T, class U>
-    concept bool LessThanComparable2 =
-        requires(T a, U b) {
-            { a < b } -> bool;
         };
 
     //
