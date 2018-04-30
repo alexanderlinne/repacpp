@@ -31,6 +31,13 @@ namespace repa::view {
             std::forward<_ArrayViews>(arrays)...);
     }
 
+    template<ArrayView... _ArrayViews>
+    auto multiply(_ArrayViews&&... arrays)
+        -> Pipeable
+    {
+        return zip([](auto&&... v) -> decltype(auto) { return (v * ...); },
+            std::forward<_ArrayViews>(arrays)...);
+    }
 
     namespace detail {
 
