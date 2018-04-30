@@ -14,12 +14,12 @@ namespace repa::view {
 
     namespace detail {
 
-        template<Index _Index, class _IndexFn, ArrayView _ArrayView>
+        template<Index _Extent, class _IndexFn, ArrayView _ArrayView>
         struct backpermute_view
         {
-            static_assert(Invocable<_IndexFn, _Index const&>);
+            static_assert(Invocable<_IndexFn, _Extent const&>);
 
-            backpermute_view(_Index const& extent,
+            backpermute_view(_Extent const& extent,
                 _IndexFn&& index_fn, _ArrayView array)
                 : _extent(extent),
                 index_fn(std::forward<_IndexFn>(index_fn)),
@@ -39,7 +39,7 @@ namespace repa::view {
             }
 
         private:
-            _Index _extent;
+            _Extent _extent;
             _IndexFn index_fn;
             _ArrayView array;
         };
