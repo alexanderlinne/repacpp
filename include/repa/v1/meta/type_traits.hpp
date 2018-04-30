@@ -63,4 +63,26 @@ namespace repa {
     template<class T>
     inline constexpr bool is_complete_v = is_complete<T>::value;
 
+    namespace detail {
+
+        template<bool Cont, size_t From, size_t To, size_t... Ns>
+        struct idx_seq_impl;
+
+        template<size_t From, size_t To, size_t... Ns>
+        struct idx_seq_impl<true, From, To, Ns...>
+            : idx_seq_impl<From < To - 1, From, To - 1, To - 1, Ns...> {};
+
+        template<size_t From, size_t To, size_t... Ns>
+        struct idx_seq_impl<false, From, To, Ns...> {
+            using type = std::index_sequence<Ns...>;
+        };
+
+    } // namespace detail
+
+    // create a std::index_sequence with value [From, To)
+    template<size_t From, size_t To>
+    auto make_index_sequence() {
+        return (typename detail::idx_seq_impl<From < To, From, To>::type){};
+    }
+
 } // namespace repa

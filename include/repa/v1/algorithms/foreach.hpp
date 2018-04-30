@@ -37,13 +37,17 @@ namespace repa {
             for_each_seq_impl<0>(extent, std::forward<decltype(fn)>(fn), idx);
         }
 
-        void exec_indices(auto&& nthreads,auto&& thread_idx,
+        template<class _SizeType>
+        void exec_indices(_SizeType nthreads,_SizeType thread_idx,
             Index const& extent, auto&& fn)
         {
+            using index_type = element_type_t<decltype(extent)>;
+
             auto _extent = extent;
-            get<0>(_extent) = 1;
-            auto max = get<0>(extent);
-            for (decltype(max) i = thread_idx; i < max; i += nthreads) {
+            get<0>(_extent) = index_type{1};
+
+            auto max = _SizeType{get<0>(extent)};
+            for (auto i = _SizeType{thread_idx}; i < max; i += nthreads) {
                 for_each_seq(_extent, [&](auto&& idx) {
                     auto _idx = idx;
                     get<0>(_idx) = i;
@@ -52,19 +56,19 @@ namespace repa {
             }
         }
 
-        template<class Fn>
-        void for_each_par(Index const& extent, Fn&& fn)
+        template<class _Fn>
+        void for_each_par(Index const& extent, _Fn&& fn)
         {
-            auto nthreads = std::thread::hardware_concurrency();
+            auto nthreads = size_t{std::thread::hardware_concurrency()};
             if (nthreads < 2) {
-                for_each(extent, std::forward<Fn>(fn));
+                for_each(extent, std::forward<_Fn>(fn));
                 return;
             }
 
-            auto count = static_cast<size_t>(get<0>(extent));
+            auto count = size_t{get<0>(extent)};
             auto threads = std::vector<std::thread>{};
             threads.resize(nthreads);
-            for (size_t i = 0; i < nthreads - 1 && i < count; ++i) {
+            for (size_t i = size_t{0}; i < nthreads - 1 && i < count; ++i) {
                 threads[i] = std::thread([&](auto thread_idx) {
                     exec_indices(nthreads, thread_idx, extent, fn);
                 }, i);

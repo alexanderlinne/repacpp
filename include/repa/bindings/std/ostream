@@ -7,4 +7,4 @@
 
 #pragma once
 
-#include "repa/v1/bindings/ostream.hpp"
+#include "repa/v1/bindings/std/ostream.hpp"

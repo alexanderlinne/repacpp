@@ -16,16 +16,15 @@ namespace repa::view {
 
     namespace detail {
 
-        template<class _ExtentFn, class _AtFn, ArrayView _ArrayView>
+        template<Index _Extent, class _AtFn, ArrayView _ArrayView>
         struct traverse_view
         {
-            static_assert(Invocable<_ExtentFn, index_type_t<_ArrayView>>);
-            static_assert(Invocable<_AtFn, _ArrayView, index_type_t<_ArrayView>>);
+            static_assert(Invocable<_AtFn, _ArrayView, _Extent>);
 
-            traverse_view(_ExtentFn&& extent_fn, _AtFn&& at_fn, _ArrayView array)
-                : at_fn(std::forward<_AtFn>(at_fn)),
-                array(std::move(array)),
-                _extent(extent_fn(this->array.extent()))
+            traverse_view(_Extent const& extent, _AtFn&& at_fn, _ArrayView array)
+                : _extent(extent),
+                at_fn(std::forward<_AtFn>(at_fn)),
+                array(std::move(array))
             {};
 
             auto extent() const
@@ -41,9 +40,9 @@ namespace repa::view {
             }
 
         private:
-            _AtFn at_fn;
+            _Extent _extent;
+            std::decay_t<_AtFn> at_fn;
             _ArrayView array;
-            decltype(std::declval<_ExtentFn>()(array.extent())) _extent;
         };
 
     } // namespace detail
@@ -58,7 +57,7 @@ namespace repa::view {
                 -> DelayedView
             {
                 return detail::traverse_view{
-                    std::forward<decltype(extent_fn)>(extent_fn),
+                    extent_fn(array.extent()),
                     std::forward<decltype(at_fn)>(at_fn),
                     std::forward<decltype(array)>(array) | id()
                 };

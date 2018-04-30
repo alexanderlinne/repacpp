@@ -19,30 +19,25 @@ namespace repa::view {
     auto add(_ArrayViews&&... arrays)
         -> Pipeable
     {
-        return make_pipeable(
-            [&](ArrayView&& array)
-                -> DelayedView
-            {
-                return std::forward<decltype(array)>(array)
-                    | zip([](auto&&... v) -> decltype(auto) { return (v + ...); },
-                        std::forward<_ArrayViews>(arrays)...);
-            });
+        return zip([](auto&&... v) -> decltype(auto) { return (v + ...); },
+            std::forward<_ArrayViews>(arrays)...);
     }
 
     template<ArrayView... _ArrayViews>
     auto subtract(_ArrayViews&&... arrays)
         -> Pipeable
     {
-        return make_pipeable(
-            [&](ArrayView&& array)
-                -> DelayedView
-            {
-                return std::forward<decltype(array)>(array)
-                    | zip([](auto&&... v) -> decltype(auto) { return (v - ...); },
-                        std::forward<_ArrayViews>(arrays)...);
-            });
+        return zip([](auto&&... v) -> decltype(auto) { return (v - ...); },
+            std::forward<_ArrayViews>(arrays)...);
     }
 
+    template<ArrayView... _ArrayViews>
+    auto multiply(_ArrayViews&&... arrays)
+        -> Pipeable
+    {
+        return zip([](auto&&... v) -> decltype(auto) { return (v * ...); },
+            std::forward<_ArrayViews>(arrays)...);
+    }
 
     namespace detail {
 
@@ -59,16 +54,19 @@ namespace repa::view {
     auto transpose()
         -> Pipeable
     {
-        return make_pipeable(
-            [](ArrayView&& array)
-                -> DelayedView
-            {
-                static_assert(rank_v<decltype(array)> >= 2);
-                return std::forward<decltype(array)>(array)
-                    | backpermute(detail::transpose_swap(array.extent()),
-                        [](auto&& idx) {
-                            return detail::transpose_swap(idx);
-                        });
+        return backpermute(
+            [](auto&& extent) { return detail::transpose_swap(extent); },
+            [](auto&& index) { return detail::transpose_swap(index); });
+    }
+
+    template<size_t Dim>
+    auto extend(size_t size) {
+        return traverse(
+            [size = size](repa::Index&& extent) {
+                return add_dimension<Dim>(extent, size);
+            },
+            [](repa::ArrayView&& array, repa::Index&& index) {
+                return array[remove_dimension<Dim>(index)];
             });
     }
 

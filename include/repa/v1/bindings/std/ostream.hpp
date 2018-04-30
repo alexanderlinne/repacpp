@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <iosfwd>
+
 #include "repa/v1/core/array_concept.hpp"
 
 namespace repa::detail {
@@ -46,7 +48,7 @@ namespace repa::detail {
 
 } // namespace repa::detail
 
-auto operator<<(std::ostream& o, repa::ArrayView const& array)
+auto operator<<(std::ostream& o, repa::ManifestView const& array)
     -> std::ostream&
 requires
     repa::Printable<repa::element_type_t<decltype(array)>>

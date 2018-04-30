@@ -59,7 +59,7 @@ namespace repa::view {
             }
 
         private:
-            _Fn fn;
+            std::decay_t<_Fn> fn;
             std::tuple<_ArrayViews...> arrays;
         };
 

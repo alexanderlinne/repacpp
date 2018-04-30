@@ -25,7 +25,8 @@ namespace repa {
             // ctor
 
             cv_mat(cv::Mat mat)
-                : _extent(make_index(mat.rows, mat.cols)),
+                : _extent(make_index(static_cast<size_t>(mat.rows),
+                    static_cast<size_t>(mat.cols))),
                 mat(std::move(mat))
             {}
 
@@ -55,7 +56,7 @@ namespace repa {
             }
 
         private:
-            index<decltype(std::declval<cv::Mat>().rows), Rank> _extent;
+            index<size_t, Rank> _extent;
             cv::Mat mat;
         };
 
